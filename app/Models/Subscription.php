@@ -4,11 +4,17 @@ namespace App\Models;
 
 use App\Enums\FrequencyUnit;
 use App\Enums\SubscriptionStatus;
+use App\Models\Contact;
+use App\Models\WhatsappSession;
+use App\Models\MessageTemplate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'session_id',
         'contact_id',
