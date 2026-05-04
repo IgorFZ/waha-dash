@@ -26,6 +26,11 @@ class WhatsappSession extends Model
         'metadata' => 'array',
     ];
 
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(Contact::class, 'session_id');
+    }
+
     public function isConnected(): bool
     {
         return $this->status === SessionStatus::Connected;
