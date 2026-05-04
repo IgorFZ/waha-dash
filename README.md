@@ -75,3 +75,11 @@ WAHA_TIMEOUT=15
 ```
 
 O Laravel envia a chave no header `X-Api-Key`, conforme a configuração oficial da WAHA.
+
+# Docker Commands
+
+Run: 
+
+```bash
+docker exec -it waha-dash-app /bin/sh -c "cd /var/www/html && php artisan migrate"
+```
