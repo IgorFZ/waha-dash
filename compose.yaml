@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: waha-dash-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - postgres
+      - waha
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: waha-dash-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-waha_dash}
+      POSTGRES_USER: ${DB_USERNAME:-waha_dash}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: waha-dash-waha
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY}
+      WAHA_DASHBOARD_ENABLED: ${WAHA_DASHBOARD_ENABLED:-true}
+      WAHA_DASHBOARD_USERNAME: ${WAHA_DASHBOARD_USERNAME:-admin}
+      WAHA_DASHBOARD_PASSWORD: ${WAHA_DASHBOARD_PASSWORD}
+    volumes:
+      - waha-sessions:/app/.sessions
+
+volumes:
+  postgres-data:
+  waha-sessions:
