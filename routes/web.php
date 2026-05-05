@@ -1,7 +1,13 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', DashboardController::class)->name('dashboard');
+
+Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+Route::post('/onboarding/session', [OnboardingController::class, 'store'])->name('onboarding.session.store');
+Route::get('/onboarding/qr', [OnboardingController::class, 'qr'])->name('onboarding.qr');
+Route::get('/onboarding/status', [OnboardingController::class, 'status'])->name('onboarding.status');
+Route::post('/onboarding/qr/refresh', [OnboardingController::class, 'refreshQr'])->name('onboarding.qr.refresh');

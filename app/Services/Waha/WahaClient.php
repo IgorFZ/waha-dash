@@ -3,6 +3,7 @@
 namespace App\Services\Waha;
 
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class WahaClient
@@ -25,6 +26,60 @@ class WahaClient
             ])
             ->throw()
             ->json();
+    }
+
+    public function createSession(?string $session = null): ?array
+    {
+        $session = $session ?? $this->session();
+
+        return $this->request()
+            ->post('/api/sessions', [
+                'name' => $session,
+                'start' => true,
+                'config' => new \stdClass(),
+            ])
+            ->throw()
+            ->json();
+    }
+
+    public function start(?string $session = null): ?array
+    {
+        $session = $session ?? $this->session();
+
+        return $this->request()
+            ->post("/api/sessions/{$session}/start")
+            ->throw()
+            ->json();
+    }
+
+    public function restart(?string $session = null): ?array
+    {
+        $session = $session ?? $this->session();
+
+        return $this->request()
+            ->post("/api/sessions/{$session}/restart")
+            ->throw()
+            ->json();
+    }
+
+    public function me(?string $session = null): mixed
+    {
+        $session = $session ?? $this->session();
+
+        return $this->request()
+            ->get("/api/sessions/{$session}/me")
+            ->throw()
+            ->json();
+    }
+
+    public function qrImage(?string $session = null): Response
+    {
+        $session = $session ?? $this->session();
+
+        return $this->request()
+            ->accept('image/png')
+            ->get("/api/{$session}/auth/qr?format=image")
+            ->throw();
     }
 
     private function request(): PendingRequest
