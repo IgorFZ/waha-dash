@@ -1,7 +1,10 @@
 <?php
 
-use App\Http\Controllers\WahaController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/waha/status', [WahaController::class, 'status']);
-Route::post('/waha/send-text', [WahaController::class, 'sendText']);
+Route::get("/", function () {
+  return response()->json([
+    'message' => 'Welcome to the Waha Dashboard API',
+    'version' => '1.0',
+  ]);
+});
