@@ -16,17 +16,37 @@
             <p class="text-secondary mb-0">Gerencie os contatos locais e importe contatos selecionados do WhatsApp.</p>
         </div>
 
-        <button
-            class="btn btn-success"
-            type="button"
-            data-contact-import-open
-        >
-            Buscar do WhatsApp
-        </button>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+            <button
+                class="btn btn-outline-success"
+                type="button"
+                data-contact-manual-open
+            >
+                Adicionar manualmente
+            </button>
+            <button
+                class="btn btn-success"
+                type="button"
+                data-contact-import-open
+            >
+                Buscar do WhatsApp
+            </button>
+        </div>
     </div>
 
     @if (session('status'))
         <div class="alert alert-success" role="status">{{ session('status') }}</div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <div class="fw-semibold mb-1">Não foi possível concluir a ação.</div>
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
     <div class="card border-0 shadow-sm">
@@ -52,9 +72,14 @@
                 <div class="text-center py-5">
                     <h2 class="h5 mb-2">Nenhum contato local ainda</h2>
                     <p class="text-secondary mb-4">Busque contatos no WhatsApp e escolha quais deseja importar.</p>
-                    <button class="btn btn-success" type="button" data-contact-import-open>
-                        Buscar do WhatsApp
-                    </button>
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                        <button class="btn btn-outline-success" type="button" data-contact-manual-open>
+                            Adicionar manualmente
+                        </button>
+                        <button class="btn btn-success" type="button" data-contact-import-open>
+                            Buscar do WhatsApp
+                        </button>
+                    </div>
                 </div>
             @else
                 <div class="table-responsive">
@@ -67,6 +92,7 @@
                                 <th scope="col">Origem</th>
                                 <th scope="col">Sincronizado</th>
                                 <th scope="col">Bloqueado</th>
+                                <th scope="col" class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,7 +114,39 @@
                                         </span>
                                     </td>
                                     <td>{{ $contact->synced_at?->format('d/m/Y H:i') ?: '-' }}</td>
-                                    <td>{{ $contact->is_blocked ? 'Sim' : 'Nao' }}</td>
+                                    <td>{{ $contact->is_blocked ? 'Sim' : 'Não' }}</td>
+                                    <td>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button
+                                                class="btn btn-sm btn-outline-secondary"
+                                                type="button"
+                                                data-contact-edit
+                                                data-action="{{ route('contacts.update', $contact) }}"
+                                                data-display-name="{{ $contact->display_name ?: $contact->push_name }}"
+                                                data-phone-number="{{ $contact->phone_number }}"
+                                                data-notes="{{ $contact->notes }}"
+                                            >
+                                                Editar
+                                            </button>
+
+                                            <form
+                                                method="POST"
+                                                action="{{ route('contacts.destroy', $contact) }}"
+                                                data-contact-delete-form
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    type="submit"
+                                                    @disabled($contact->active_subscriptions_count > 0)
+                                                    title="{{ $contact->active_subscriptions_count > 0 ? 'Contato com assinatura ativa não pode ser excluído.' : 'Excluir contato' }}"
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -97,6 +155,73 @@
 
                 {{ $contacts->links() }}
             @endif
+        </div>
+    </div>
+
+    <div
+        class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50 d-none align-items-center justify-content-center p-3"
+        style="z-index: 1060;"
+        data-contact-manual-modal
+    >
+        <div class="bg-white rounded shadow w-100" style="max-width: 640px;">
+            <div class="d-flex align-items-center justify-content-between gap-3 border-bottom p-4">
+                <div>
+                    <h2 class="h5 mb-1" data-contact-manual-title>Adicionar contato</h2>
+                    <p class="text-secondary mb-0">O numero sera validado e sincronizado com o WhatsApp.</p>
+                </div>
+                <button class="btn-close" type="button" aria-label="Fechar" data-contact-manual-close></button>
+            </div>
+
+            <form method="POST" action="{{ route('contacts.store') }}" data-contact-manual-form>
+                @csrf
+                <input type="hidden" name="_method" value="PUT" data-contact-manual-method disabled>
+
+                <div class="p-4">
+                    <div class="mb-3">
+                        <label class="form-label" for="contact-display-name">Nome</label>
+                        <input
+                            class="form-control"
+                            id="contact-display-name"
+                            name="display_name"
+                            type="text"
+                            maxlength="255"
+                            required
+                            data-contact-manual-name
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="contact-phone-number">Telefone</label>
+                        <input
+                            class="form-control"
+                            id="contact-phone-number"
+                            name="phone_number"
+                            type="tel"
+                            maxlength="20"
+                            placeholder="554999999999"
+                            required
+                            data-contact-manual-phone
+                        >
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label" for="contact-notes">Observações</label>
+                        <textarea
+                            class="form-control"
+                            id="contact-notes"
+                            name="notes"
+                            rows="4"
+                            maxlength="2000"
+                            data-contact-manual-notes
+                        ></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top p-4">
+                    <button class="btn btn-outline-secondary" type="button" data-contact-manual-close>Cancelar</button>
+                    <button class="btn btn-success" type="submit" data-contact-manual-submit>Salvar e sincronizar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -125,7 +250,7 @@
                         <div class="form-check">
                             <input class="form-check-input" id="contact-import-select-all" type="checkbox" data-contact-import-select-all>
                             <label class="form-check-label" for="contact-import-select-all">
-                                Selecionar todos os visiveis
+                                Selecionar todos os visíveis
                             </label>
                         </div>
 
@@ -184,6 +309,18 @@
 
 @push('scripts')
     <script>
+        const manualModal = document.querySelector('[data-contact-manual-modal]');
+        const manualOpenButtons = document.querySelectorAll('[data-contact-manual-open]');
+        const manualCloseButtons = document.querySelectorAll('[data-contact-manual-close]');
+        const manualEditButtons = document.querySelectorAll('[data-contact-edit]');
+        const manualForm = document.querySelector('[data-contact-manual-form]');
+        const manualMethod = document.querySelector('[data-contact-manual-method]');
+        const manualTitle = document.querySelector('[data-contact-manual-title]');
+        const manualName = document.querySelector('[data-contact-manual-name]');
+        const manualPhone = document.querySelector('[data-contact-manual-phone]');
+        const manualNotes = document.querySelector('[data-contact-manual-notes]');
+        const manualSubmit = document.querySelector('[data-contact-manual-submit]');
+        const deleteForms = document.querySelectorAll('[data-contact-delete-form]');
         const importModal = document.querySelector('[data-contact-import-modal]');
         const openButtons = document.querySelectorAll('[data-contact-import-open]');
         const closeButtons = document.querySelectorAll('[data-contact-import-close]');
@@ -204,6 +341,19 @@
         let previewMeta = null;
         let unnamedLoaded = false;
         let selectedChatIds = new Set();
+
+        manualOpenButtons.forEach((button) => button.addEventListener('click', openCreateContactModal));
+        manualCloseButtons.forEach((button) => button.addEventListener('click', closeManualModal));
+        manualEditButtons.forEach((button) => button.addEventListener('click', () => openEditContactModal(button)));
+        manualForm.addEventListener('submit', () => {
+            manualSubmit.disabled = true;
+            manualSubmit.textContent = 'Sincronizando...';
+        });
+        deleteForms.forEach((form) => form.addEventListener('submit', (event) => {
+            if (!confirm('Excluir este contato?')) {
+                event.preventDefault();
+            }
+        }));
 
         openButtons.forEach((button) => button.addEventListener('click', openImportModal));
         closeButtons.forEach((button) => button.addEventListener('click', closeImportModal));
@@ -231,6 +381,43 @@
 
             updateSelectionState();
         });
+
+        function openCreateContactModal() {
+            manualTitle.textContent = 'Adicionar contato';
+            manualForm.action = '{{ route('contacts.store') }}';
+            manualMethod.disabled = true;
+            manualName.value = '';
+            manualPhone.value = '';
+            manualNotes.value = '';
+            manualSubmit.disabled = false;
+            manualSubmit.textContent = 'Salvar e sincronizar';
+            openManualModal();
+        }
+
+        function openEditContactModal(button) {
+            manualTitle.textContent = 'Editar contato';
+            manualForm.action = button.dataset.action;
+            manualMethod.disabled = false;
+            manualName.value = button.dataset.displayName || '';
+            manualPhone.value = button.dataset.phoneNumber || '';
+            manualNotes.value = button.dataset.notes || '';
+            manualSubmit.disabled = false;
+            manualSubmit.textContent = 'Salvar e sincronizar';
+            openManualModal();
+        }
+
+        function openManualModal() {
+            manualModal.classList.remove('d-none');
+            manualModal.classList.add('d-flex');
+            document.body.style.overflow = 'hidden';
+            manualName.focus();
+        }
+
+        function closeManualModal() {
+            manualModal.classList.add('d-none');
+            manualModal.classList.remove('d-flex');
+            document.body.style.overflow = '';
+        }
 
         async function openImportModal() {
             importModal.classList.remove('d-none');
@@ -389,10 +576,10 @@
             }
 
             if (previewMeta.total_skipped > 0) {
-                return `${previewMeta.total_importable} importaveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome. ${previewMeta.total_skipped} registros tecnicos.`;
+                return `${previewMeta.total_importable} importáveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome. ${previewMeta.total_skipped} registros tecnicos.`;
             }
 
-            return `${previewMeta.total_importable} importaveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome.`;
+            return `${previewMeta.total_importable} importáveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome.`;
         }
 
         function toggleVisibleContacts() {
@@ -438,12 +625,12 @@
                 const payload = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(payload.message || 'Nao foi possivel importar os contatos.');
+                    throw new Error(payload.message || 'Não foi possível importar os contatos.');
                 }
 
                 const summary = payload.summary;
                 showSuccess(
-                    `Importacao concluida: ${summary.created} criados, ${summary.updated} atualizados, ${summary.skipped} ignorados.`,
+                    `Importação concluída: ${summary.created} criados, ${summary.updated} atualizados, ${summary.skipped} ignorados.`,
                 );
 
                 window.setTimeout(() => window.location.reload(), 900);

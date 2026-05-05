@@ -6,6 +6,7 @@ use App\Models\WhatsappSession;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contact extends Model
 {
@@ -35,5 +36,10 @@ class Contact extends Model
     public function session(): BelongsTo
     {
         return $this->belongsTo(WhatsappSession::class, 'session_id');
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 }

@@ -58,6 +58,28 @@ class WahaClient
             ->json();
     }
 
+    public function checkContactExists(string $phone, ?string $session = null): array
+    {
+        return $this->request()
+            ->get('/api/contacts/check-exists', [
+                'session' => $session ?? $this->session(),
+                'phone' => $phone,
+            ])
+            ->throw()
+            ->json();
+    }
+
+    public function updateContact(string $chatId, array $data, ?string $session = null): array
+    {
+        $session = $session ?? $this->session();
+        $chatId = rawurlencode($chatId);
+
+        return $this->request()
+            ->put("/api/{$session}/contacts/{$chatId}", $data)
+            ->throw()
+            ->json() ?? [];
+    }
+
     public function lids(?string $session = null, int $limit = 100, int $offset = 0): array
     {
         $session = $session ?? $this->session();

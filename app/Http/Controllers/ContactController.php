@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Contacts\ImportContactsRequest;
 use App\Http\Requests\Contacts\IndexContactsRequest;
+use App\Http\Requests\Contacts\StoreContactRequest;
+use App\Http\Requests\Contacts\UpdateContactRequest;
+use App\Enums\SubscriptionStatus;
 use App\Models\Contact;
 use App\Models\WhatsappSession;
 use App\Services\Contacts\ContactImportService;
+use App\Services\Contacts\ContactWhatsappSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -24,6 +28,10 @@ class ContactController extends Controller
 
         $contacts = Contact::query()
             ->where('session_id', $session->id)
+            ->withCount([
+                'subscriptions as active_subscriptions_count' => fn($query) => $query
+                    ->where('status', SubscriptionStatus::Active->value),
+            ])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query
@@ -43,6 +51,21 @@ class ContactController extends Controller
             'session' => $session,
             'search' => $search,
         ]);
+    }
+
+    public function store(StoreContactRequest $request, ContactWhatsappSyncService $sync)
+    {
+        $session = WhatsappSession::query()->firstOrFail();
+        $data = $sync->dataForManualContact($session, $request->validated());
+
+        Contact::query()->create([
+            'session_id' => $session->id,
+            ...$data,
+        ]);
+
+        return redirect()
+            ->route('contacts.index')
+            ->with('status', 'Contato adicionado e sincronizado com o WhatsApp.');
     }
 
     public function importPreview(Request $request, ContactImportService $contacts): JsonResponse
@@ -92,9 +115,16 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Contact $contact)
+    public function update(UpdateContactRequest $request, Contact $contact, ContactWhatsappSyncService $sync)
     {
-        //
+        $session = WhatsappSession::query()->firstOrFail();
+        abort_unless((int) $contact->session_id === (int) $session->id, 404);
+
+        $contact->update($sync->dataForManualContact($session, $request->validated(), $contact));
+
+        return redirect()
+            ->route('contacts.index')
+            ->with('status', 'Contato atualizado e sincronizado com o WhatsApp.');
     }
 
     /**
@@ -102,6 +132,23 @@ class ContactController extends Controller
      */
     public function destroy(Contact $contact)
     {
-        //
+        $session = WhatsappSession::query()->firstOrFail();
+        abort_unless((int) $contact->session_id === (int) $session->id, 404);
+
+        if ($contact->subscriptions()
+            ->where('status', SubscriptionStatus::Active->value)
+            ->exists()) {
+            return redirect()
+                ->route('contacts.index')
+                ->withErrors([
+                    'contact' => 'Contato com subscription ativa nao pode ser excluido.',
+                ]);
+        }
+
+        $contact->delete();
+
+        return redirect()
+            ->route('contacts.index')
+            ->with('status', 'Contato excluido.');
     }
 }
