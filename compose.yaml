@@ -18,6 +18,19 @@ services:
       - postgres
       - waha
 
+  scheduler:
+    image: waha-dash-app:latest
+    container_name: waha-dash-scheduler
+    restart: unless-stopped
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - postgres
+      - waha
+
   postgres:
     image: postgres:16-alpine
     container_name: waha-dash-postgres

@@ -31,6 +31,12 @@
                     >
                         Templates
                     </a>
+                    <a
+                        class="nav-link {{ request()->routeIs('subscriptions.*') ? 'active fw-semibold' : '' }}"
+                        href="{{ route('subscriptions.index') }}"
+                    >
+                        Subscriptions
+                    </a>
                 </div>
             </div>
 

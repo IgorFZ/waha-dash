@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('dashboard');
@@ -16,6 +17,10 @@ Route::put('/contacts/{contact}', [ContactController::class, 'update'])->name('c
 Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 
 Route::resource('message-templates', MessageTemplateController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+Route::post('/subscriptions/{subscription}/test-send', [SubscriptionController::class, 'testSend'])
+    ->name('subscriptions.test-send');
+Route::resource('subscriptions', SubscriptionController::class)
     ->only(['index', 'store', 'update', 'destroy']);
 
 Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
