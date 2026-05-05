@@ -28,6 +28,60 @@ class WahaClient
             ->json();
     }
 
+    public function contacts(
+        ?string $session = null,
+        int $limit = 100,
+        int $offset = 0,
+        string $sortBy = 'id',
+        string $sortOrder = 'asc',
+    ): array {
+        return $this->request()
+            ->get('/api/contacts/all', [
+                'session' => $session ?? $this->session(),
+                'limit' => $limit,
+                'offset' => $offset,
+                'sortBy' => $sortBy,
+                'sortOrder' => $sortOrder,
+            ])
+            ->throw()
+            ->json();
+    }
+
+    public function contact(string $contactId, ?string $session = null): array
+    {
+        return $this->request()
+            ->get('/api/contacts', [
+                'session' => $session ?? $this->session(),
+                'contactId' => $contactId,
+            ])
+            ->throw()
+            ->json();
+    }
+
+    public function lids(?string $session = null, int $limit = 100, int $offset = 0): array
+    {
+        $session = $session ?? $this->session();
+
+        return $this->request()
+            ->get("/api/{$session}/lids", [
+                'limit' => $limit,
+                'offset' => $offset,
+            ])
+            ->throw()
+            ->json();
+    }
+
+    public function phoneNumberByLid(string $lid, ?string $session = null): array
+    {
+        $session = $session ?? $this->session();
+        $lid = str_replace('@lid', '', $lid);
+
+        return $this->request()
+            ->get("/api/{$session}/lids/{$lid}")
+            ->throw()
+            ->json();
+    }
+
     public function createSession(?string $session = null): ?array
     {
         $session = $session ?? $this->session();

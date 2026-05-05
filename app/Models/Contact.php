@@ -20,11 +20,16 @@ class Contact extends Model
         'is_business',
         'is_blocked',
         'notes',
+        'source',
+        'synced_at',
+        'raw_payload',
     ];
 
     protected $casts = [
         'is_business' => 'boolean',
         'is_blocked' => 'boolean',
+        'synced_at' => 'datetime',
+        'raw_payload' => 'array',
     ];
 
     public function session(): BelongsTo
