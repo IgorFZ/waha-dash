@@ -20,6 +20,8 @@ Route::resource('message-templates', MessageTemplateController::class)
     ->only(['index', 'store', 'update', 'destroy']);
 Route::post('/subscriptions/{subscription}/test-send', [SubscriptionController::class, 'testSend'])
     ->name('subscriptions.test-send');
+Route::post('/subscriptions/{subscription}/clone', [SubscriptionController::class, 'clone'])
+    ->name('subscriptions.clone');
 Route::resource('subscriptions', SubscriptionController::class)
     ->only(['index', 'store', 'update', 'destroy']);
 

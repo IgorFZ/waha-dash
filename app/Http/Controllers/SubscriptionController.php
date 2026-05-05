@@ -66,7 +66,7 @@ class SubscriptionController extends Controller
 
         return redirect()
             ->route('subscriptions.index')
-            ->with('status', 'Subscription criada.');
+            ->with('status', 'Assinatura criada.');
     }
 
     /**
@@ -97,7 +97,7 @@ class SubscriptionController extends Controller
 
         return redirect()
             ->route('subscriptions.index')
-            ->with('status', 'Subscription atualizada.');
+            ->with('status', 'Assinatura atualizada.');
     }
 
     /**
@@ -112,7 +112,7 @@ class SubscriptionController extends Controller
 
         return redirect()
             ->route('subscriptions.index')
-            ->with('status', 'Subscription excluida.');
+            ->with('status', 'Assinatura excluída.');
     }
 
     public function testSend(Subscription $subscription, SubscriptionSender $sender)
@@ -131,7 +131,50 @@ class SubscriptionController extends Controller
         return redirect()
             ->route('subscriptions.index')
             ->withErrors([
-                'subscription' => $run->error_message ?: 'Nao foi possivel enviar a mensagem de teste.',
+                'subscription' => $run->error_message ?: 'Não foi possível enviar a mensagem de teste.',
             ]);
+    }
+
+    public function clone(Subscription $subscription)
+    {
+        $session = WhatsappSession::query()->firstOrFail();
+        abort_unless((int) $subscription->session_id === (int) $session->id, 404);
+
+        // Obtém o contato de destino a partir da requisição.
+        $contact_id = request()->post('contact_id');
+
+        if (!$contact_id) {
+            return redirect()
+                ->route('subscriptions.index')
+                ->withErrors([
+                    'subscription' => 'Selecione um contato para clonar a assinatura.',
+                ]);
+        }
+
+        // Verifica se o contato existe e pertence à sessão atual.
+        $contact = Contact::where('session_id', $session->id)
+            ->where('id', $contact_id)
+            ->firstOrFail();
+
+        // Cria uma cópia associada ao novo contato.
+        $cloned = Subscription::create([
+            'session_id' => $subscription->session_id,
+            'contact_id' => $contact->id,
+            'template_id' => $subscription->template_id,
+            'title' => $subscription->title . ' (Cópia)',
+            'description' => $subscription->description,
+            'amount' => $subscription->amount,
+            'frequency_unit' => $subscription->frequency_unit,
+            'frequency_interval' => $subscription->frequency_interval,
+            'start_date' => $subscription->start_date,
+            'next_due_date' => $subscription->next_due_date,
+            'send_time' => $subscription->send_time,
+            'template_variables' => $subscription->template_variables,
+            'status' => $subscription->status,
+        ]);
+
+        return redirect()
+            ->route('subscriptions.index')
+            ->with('status', 'Assinatura clonada com sucesso para ' . ($contact->display_name ?: $contact->phone_number) . '.');
     }
 }

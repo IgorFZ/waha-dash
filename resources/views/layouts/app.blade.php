@@ -29,13 +29,13 @@
                         class="nav-link {{ request()->routeIs('message-templates.*') ? 'active fw-semibold' : '' }}"
                         href="{{ route('message-templates.index') }}"
                     >
-                        Templates
+                        Modelos
                     </a>
                     <a
                         class="nav-link {{ request()->routeIs('subscriptions.*') ? 'active fw-semibold' : '' }}"
                         href="{{ route('subscriptions.index') }}"
                     >
-                        Subscriptions
+                        Assinaturas
                     </a>
                 </div>
             </div>

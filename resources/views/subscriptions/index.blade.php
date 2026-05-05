@@ -1,22 +1,22 @@
 @extends('layouts.app')
 
-@section('title', 'Subscriptions - Waha Dash')
+@section('title', 'Assinaturas - Waha Dash')
 
 @section('content')
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
         <div>
-            <h1 class="h3 mb-1">Subscriptions</h1>
-            <p class="text-secondary mb-0">Configure cobrancas recorrentes e variaveis dinamicas para os templates.</p>
+            <h1 class="h3 mb-1">Assinaturas</h1>
+            <p class="text-secondary mb-0">Configure cobranças recorrentes e variáveis dinâmicas para os modelos.</p>
         </div>
 
         <button class="btn btn-success" type="button" data-subscription-open @disabled($contacts->isEmpty() || $templates->isEmpty())>
-            Nova subscription
+            Nova assinatura
         </button>
     </div>
 
     @if ($contacts->isEmpty() || $templates->isEmpty())
         <div class="alert alert-warning" role="alert">
-            Cadastre ao menos um contato e um template antes de criar subscriptions.
+            Cadastre ao menos um contato e um modelo antes de criar assinaturas.
         </div>
     @endif
 
@@ -26,7 +26,7 @@
 
     @if ($errors->any())
         <div class="alert alert-danger" role="alert">
-            <div class="fw-semibold mb-1">Nao foi possivel concluir a acao.</div>
+            <div class="fw-semibold mb-1">Não foi possível concluir a ação.</div>
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -39,10 +39,10 @@
         <div class="card-body">
             @if ($subscriptions->isEmpty())
                 <div class="text-center py-5">
-                    <h2 class="h5 mb-2">Nenhuma subscription cadastrada</h2>
-                    <p class="text-secondary mb-4">Crie uma subscription para automatizar mensagens recorrentes.</p>
+                    <h2 class="h5 mb-2">Nenhuma assinatura cadastrada</h2>
+                    <p class="text-secondary mb-4">Crie uma assinatura para automatizar mensagens recorrentes.</p>
                     <button class="btn btn-success" type="button" data-subscription-open @disabled($contacts->isEmpty() || $templates->isEmpty())>
-                        Nova subscription
+                        Nova assinatura
                     </button>
                 </div>
             @else
@@ -50,15 +50,15 @@
                     <table class="table align-middle">
                         <thead>
                             <tr>
-                                <th scope="col">Titulo</th>
+                                <th scope="col">Título</th>
                                 <th scope="col">Contato</th>
-                                <th scope="col">Template</th>
+                                <th scope="col">Modelo</th>
                                 <th scope="col">Valor</th>
-                                <th scope="col">Frequencia</th>
-                                <th scope="col">Proximo envio</th>
+                                <th scope="col">Frequência</th>
+                                <th scope="col">Próximo envio</th>
                                 <th scope="col">Status</th>
-                                <th scope="col">Runs</th>
-                                <th scope="col" class="text-end">Acoes</th>
+                                <th scope="col">Execuções</th>
+                                <th scope="col" class="text-end">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,7 +89,7 @@
                                                     class="btn btn-sm btn-outline-success"
                                                     type="submit"
                                                     @disabled(! $subscription->isActive())
-                                                    title="{{ $subscription->isActive() ? 'Enviar mensagem de teste agora' : 'Apenas subscriptions ativas podem ser testadas' }}"
+                                                    title="{{ $subscription->isActive() ? 'Enviar mensagem de teste agora' : 'Apenas assinaturas ativas podem ser testadas' }}"
                                                 >
                                                     Testar envio
                                                 </button>
@@ -109,10 +109,21 @@
                                                 data-frequency-interval="{{ $subscription->frequency_interval }}"
                                                 data-start-date="{{ $subscription->start_date?->format('Y-m-d') }}"
                                                 data-next-due-date="{{ $subscription->next_due_date?->format('Y-m-d') }}"
+                                                data-send-time="{{ $subscription->send_time?->format('H:i') }}"
                                                 data-status="{{ $subscription->status->value }}"
                                                 data-variables='@json($subscription->template_variables ?? [])'
                                             >
                                                 Editar
+                                            </button>
+
+                                            <button
+                                                class="btn btn-sm btn-outline-info"
+                                                type="button"
+                                                data-subscription-clone
+                                                data-subscription-id="{{ $subscription->id }}"
+                                                title="Clonar esta assinatura para outro contato"
+                                            >
+                                                Clonar
                                             </button>
 
                                             <form method="POST" action="{{ route('subscriptions.destroy', $subscription) }}" data-subscription-delete-form>
@@ -141,8 +152,8 @@
         <div class="bg-white rounded shadow w-100 overflow-auto" style="max-width: 1120px; max-height: 92vh;">
             <div class="d-flex align-items-center justify-content-between gap-3 border-bottom p-4">
                 <div>
-                    <h2 class="h5 mb-1" data-subscription-title>Nova subscription</h2>
-                    <p class="text-secondary mb-0">As variaveis ficam disponiveis no template como <code>@{{ variables.nome }}</code>.</p>
+                    <h2 class="h5 mb-1" data-subscription-title>Nova assinatura</h2>
+                    <p class="text-secondary mb-0">As variáveis ficam disponíveis no modelo como <code>@{{ variables.nome }}</code>.</p>
                 </div>
                 <button class="btn-close" type="button" aria-label="Fechar" data-subscription-close></button>
             </div>
@@ -172,7 +183,7 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="subscription-template">Template</label>
+                                    <label class="form-label" for="subscription-template">Modelo</label>
                                     <select class="form-select" id="subscription-template" name="template_id" required data-subscription-template>
                                         <option value="">Selecione</option>
                                         @foreach ($templates as $template)
@@ -184,7 +195,7 @@
                                 </div>
 
                                 <div class="col-md-8">
-                                    <label class="form-label" for="subscription-title">Titulo</label>
+                                    <label class="form-label" for="subscription-title">Título</label>
                                     <input class="form-control" id="subscription-title" name="title" type="text" maxlength="255" required data-subscription-field="title">
                                 </div>
 
@@ -194,12 +205,12 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label" for="subscription-description">Descricao</label>
+                                    <label class="form-label" for="subscription-description">Descrição</label>
                                     <textarea class="form-control" id="subscription-description" name="description" rows="2" maxlength="2000" data-subscription-field="description"></textarea>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label" for="subscription-frequency-unit">Frequencia</label>
+                                    <label class="form-label" for="subscription-frequency-unit">Frequência</label>
                                     <select class="form-select" id="subscription-frequency-unit" name="frequency_unit" required data-subscription-field="frequency_unit">
                                         @foreach ($frequencyUnits as $frequencyUnit)
                                             <option value="{{ $frequencyUnit->value }}">{{ $frequencyUnit->label() }}</option>
@@ -222,20 +233,25 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="subscription-start-date">Inicio</label>
+                                    <label class="form-label" for="subscription-start-date">Início</label>
                                     <input class="form-control" id="subscription-start-date" name="start_date" type="date" required data-subscription-field="start_date">
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="subscription-next-due-date">Proximo envio</label>
+                                    <label class="form-label" for="subscription-next-due-date">Próximo envio</label>
                                     <input class="form-control" id="subscription-next-due-date" name="next_due_date" type="date" data-subscription-field="next_due_date">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="subscription-send-time">Horário do envio</label>
+                                    <input class="form-control" id="subscription-send-time" name="send_time" type="time" data-subscription-field="send_time">
                                 </div>
                             </div>
 
                             <div class="border-top mt-4 pt-4">
                                 <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
-                                    <div class="form-label mb-0">Variaveis dinamicas</div>
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-variable-add>Adicionar variavel</button>
+                    <div class="form-label mb-0">Variáveis dinâmicas</div>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-variable-add>Adicionar variável</button>
                                 </div>
 
                                 <div class="d-flex flex-column gap-2" data-variables-list></div>
@@ -243,7 +259,7 @@
                         </div>
 
                         <div class="col-lg-5">
-                            <div class="form-label">Previa da mensagem</div>
+                            <div class="form-label">Prévia da mensagem</div>
                             <div class="border rounded p-3 bg-body-tertiary" style="min-height: 420px; white-space: pre-wrap;" data-subscription-preview></div>
                         </div>
                     </div>
@@ -251,7 +267,41 @@
 
                 <div class="d-flex justify-content-end gap-2 border-top p-4">
                     <button class="btn btn-outline-secondary" type="button" data-subscription-close>Cancelar</button>
-                    <button class="btn btn-success" type="submit" data-subscription-submit>Salvar subscription</button>
+                    <button class="btn btn-success" type="submit" data-subscription-submit>Salvar assinatura</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Clone Modal -->
+    <div
+        class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50 d-none align-items-center justify-content-center p-3"
+        style="z-index: 1050;"
+        data-clone-modal
+    >
+        <div class="bg-white rounded shadow" style="max-width: 500px; width: 100%;">
+            <div class="d-flex align-items-center justify-content-between gap-3 border-bottom p-4">
+                <h2 class="h5 mb-0">Clonar assinatura</h2>
+                <button class="btn-close" type="button" aria-label="Fechar" data-clone-close></button>
+            </div>
+
+            <form method="POST" data-clone-form>
+                @csrf
+                <div class="p-4">
+                    <label class="form-label" for="clone-contact">Selecione o contato de destino:</label>
+                    <select class="form-select" id="clone-contact" name="contact_id" required data-clone-contact>
+                        <option value="">Selecione um contato</option>
+                        @foreach ($contacts as $contact)
+                            <option value="{{ $contact->id }}">
+                                {{ $contact->display_name ?: ($contact->push_name ?: $contact->phone_number) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top p-4">
+                    <button class="btn btn-outline-secondary" type="button" data-clone-close>Cancelar</button>
+                    <button class="btn btn-info" type="submit">Clonar</button>
                 </div>
             </form>
         </div>
@@ -281,7 +331,7 @@
         closeButtons.forEach((button) => button.addEventListener('click', closeModal));
         editButtons.forEach((button) => button.addEventListener('click', () => openEditModal(button)));
         deleteForms.forEach((form) => form.addEventListener('submit', (event) => {
-            if (!confirm('Excluir esta subscription?')) {
+            if (!confirm('Excluir esta assinatura?')) {
                 event.preventDefault();
             }
         }));
@@ -306,7 +356,7 @@
         });
 
         function openCreateModal() {
-            modalTitle.textContent = 'Nova subscription';
+            modalTitle.textContent = 'Nova assinatura';
             form.action = '{{ route('subscriptions.store') }}';
             method.disabled = true;
             form.reset();
@@ -318,13 +368,13 @@
                 payment_link: '',
             });
             submitButton.disabled = false;
-            submitButton.textContent = 'Salvar subscription';
+            submitButton.textContent = 'Salvar assinatura';
             renderPreview();
             openModal();
         }
 
         function openEditModal(button) {
-            modalTitle.textContent = 'Editar subscription';
+            modalTitle.textContent = 'Editar assinatura';
             form.action = button.dataset.action;
             method.disabled = false;
             setField('contact_id', button.dataset.contactId);
@@ -336,10 +386,11 @@
             setField('frequency_interval', button.dataset.frequencyInterval);
             setField('start_date', button.dataset.startDate);
             setField('next_due_date', button.dataset.nextDueDate);
+            setField('send_time', button.dataset.sendTime);
             setField('status', button.dataset.status);
             resetVariables(JSON.parse(button.dataset.variables || '{}'));
             submitButton.disabled = false;
-            submitButton.textContent = 'Salvar subscription';
+            submitButton.textContent = 'Salvar assinatura';
             renderPreview();
             openModal();
         }
@@ -392,7 +443,7 @@
                     <input class="form-control" name="variables[${index}][value]" type="text" value="${escapeHtml(value)}" placeholder="Valor" data-variable-value>
                 </div>
                 <div class="col-md-1 d-grid">
-                    <button class="btn btn-outline-danger" type="button" data-variable-remove aria-label="Remover variavel">x</button>
+                    <button class="btn btn-outline-danger" type="button" data-variable-remove aria-label="Remover variável">x</button>
                 </div>
             `;
             variablesList.appendChild(row);
@@ -482,6 +533,31 @@
                 .replaceAll('>', '&gt;')
                 .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#039;');
+        }
+
+        // Clone functionality
+        const cloneModal = document.querySelector('[data-clone-modal]');
+        const cloneForm = document.querySelector('[data-clone-form]');
+        const cloneCloseButtons = document.querySelectorAll('[data-clone-close]');
+        const cloneButtons = document.querySelectorAll('[data-subscription-clone]');
+
+        cloneButtons.forEach((button) => button.addEventListener('click', () => openCloneModal(button)));
+        cloneCloseButtons.forEach((button) => button.addEventListener('click', closeCloneModal));
+
+        function openCloneModal(button) {
+            const subscriptionId = button.dataset.subscriptionId;
+            cloneForm.action = `/subscriptions/${subscriptionId}/clone`;
+            cloneForm.reset();
+            cloneModal.classList.remove('d-none');
+            cloneModal.classList.add('d-flex');
+            document.body.style.overflow = 'hidden';
+            document.querySelector('[data-clone-contact]').focus();
+        }
+
+        function closeCloneModal() {
+            cloneModal.classList.add('d-none');
+            cloneModal.classList.remove('d-flex');
+            document.body.style.overflow = '';
         }
     </script>
 @endpush

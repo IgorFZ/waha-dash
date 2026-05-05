@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Templates - Waha Dash')
+@section('title', 'Modelos - Waha Dash')
 
 @section('content')
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
         <div>
-            <h1 class="h3 mb-1">Templates</h1>
-            <p class="text-secondary mb-0">Crie mensagens reutilizaveis para envio automatico nas subscriptions.</p>
+            <h1 class="h3 mb-1">Modelos</h1>
+            <p class="text-secondary mb-0">Crie mensagens reutilizáveis para envio automático nas assinaturas.</p>
         </div>
 
         <button class="btn btn-success" type="button" data-template-open>
-            Novo template
+            Novo modelo
         </button>
     </div>
 
@@ -20,7 +20,7 @@
 
     @if ($errors->any())
         <div class="alert alert-danger" role="alert">
-            <div class="fw-semibold mb-1">Nao foi possivel concluir a acao.</div>
+            <div class="fw-semibold mb-1">Não foi possível concluir a ação.</div>
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -33,10 +33,10 @@
         <div class="card-body">
             @if ($templates->isEmpty())
                 <div class="text-center py-5">
-                    <h2 class="h5 mb-2">Nenhum template cadastrado</h2>
-                    <p class="text-secondary mb-4">Crie o primeiro template para usar nas subscriptions.</p>
+                    <h2 class="h5 mb-2">Nenhum modelo cadastrado</h2>
+                    <p class="text-secondary mb-4">Crie o primeiro modelo para usar nas assinaturas.</p>
                     <button class="btn btn-success" type="button" data-template-open>
-                        Novo template
+                        Novo modelo
                     </button>
                 </div>
             @else
@@ -44,11 +44,11 @@
                     <table class="table align-middle">
                         <thead>
                             <tr>
-                                <th scope="col">Titulo</th>
-                                <th scope="col">Body</th>
-                                <th scope="col">Midia</th>
+                                <th scope="col">Título</th>
+                                <th scope="col">Corpo</th>
+                                <th scope="col">Mídia</th>
                                 <th scope="col">Uso</th>
-                                <th scope="col" class="text-end">Acoes</th>
+                                <th scope="col" class="text-end">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,12 +60,12 @@
                                     </td>
                                     <td>
                                         @if ($template->media_url)
-                                            <span class="badge text-bg-secondary">{{ $template->media_type?->value ?? 'midia' }}</span>
+                                            <span class="badge text-bg-secondary">{{ $template->media_type?->label() ?? 'Mídia' }}</span>
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td>{{ $template->subscriptions_count }} subscriptions</td>
+                                    <td>{{ $template->subscriptions_count }} assinaturas</td>
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
                                             <button
@@ -92,7 +92,7 @@
                                                     class="btn btn-sm btn-outline-danger"
                                                     type="submit"
                                                     @disabled($template->subscriptions_count > 0)
-                                                    title="{{ $template->subscriptions_count > 0 ? 'Template usado em subscription nao pode ser excluido.' : 'Excluir template' }}"
+                                                    title="{{ $template->subscriptions_count > 0 ? 'Modelo usado em assinatura não pode ser excluído.' : 'Excluir modelo' }}"
                                                 >
                                                     Excluir
                                                 </button>
@@ -118,7 +118,7 @@
         <div class="bg-white rounded shadow w-100 overflow-auto" style="max-width: 980px; max-height: 92vh;">
             <div class="d-flex align-items-center justify-content-between gap-3 border-bottom p-4">
                 <div>
-                    <h2 class="h5 mb-1" data-template-title>Novo template</h2>
+                    <h2 class="h5 mb-1" data-template-title>Novo modelo</h2>
                     <p class="text-secondary mb-0">Use placeholders com chaves duplas, como <code>@{{ contact.name }}</code>.</p>
                 </div>
                 <button class="btn-close" type="button" aria-label="Fechar" data-template-close></button>
@@ -238,7 +238,7 @@
         templateCloseButtons.forEach((button) => button.addEventListener('click', closeTemplateModal));
         templateEditButtons.forEach((button) => button.addEventListener('click', () => openEditTemplateModal(button)));
         templateDeleteForms.forEach((form) => form.addEventListener('submit', (event) => {
-            if (!confirm('Excluir este template?')) {
+            if (!confirm('Excluir este modelo?')) {
                 event.preventDefault();
             }
         }));
@@ -252,21 +252,21 @@
         });
 
         function openCreateTemplateModal() {
-            templateTitle.textContent = 'Novo template';
+            templateTitle.textContent = 'Novo modelo';
             templateForm.action = '{{ route('message-templates.store') }}';
             templateMethod.disabled = true;
             titleField.value = '';
-            bodyField.value = 'Ola @{{ contact.name }}, sua assinatura @{{ subscription.title }} vence em @{{ subscription.next_due_date }} no valor de R$ @{{ subscription.amount }}.';
+            bodyField.value = 'Olá @{{ contact.name }}, sua assinatura @{{ subscription.title }} vence em @{{ subscription.next_due_date }} no valor de R$ @{{ subscription.amount }}.';
             mediaUrlField.value = '';
             mediaTypeField.value = '';
             submitButton.disabled = false;
-            submitButton.textContent = 'Salvar template';
+            submitButton.textContent = 'Salvar modelo';
             renderPreview();
             openTemplateModal();
         }
 
         function openEditTemplateModal(button) {
-            templateTitle.textContent = 'Editar template';
+            templateTitle.textContent = 'Editar modelo';
             templateForm.action = button.dataset.action;
             templateMethod.disabled = false;
             titleField.value = button.dataset.title || '';
@@ -274,7 +274,7 @@
             mediaUrlField.value = button.dataset.mediaUrl || '';
             mediaTypeField.value = button.dataset.mediaType || '';
             submitButton.disabled = false;
-            submitButton.textContent = 'Salvar template';
+            submitButton.textContent = 'Salvar modelo';
             renderPreview();
             openTemplateModal();
         }

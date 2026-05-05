@@ -6,7 +6,7 @@
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
         <div>
             <h1 class="h3 mb-1">Contatos</h1>
-            <p class="text-secondary mb-0">Gerencie os contatos locais e importe contatos selecionados do WhatsApp.</p>
+            <p class="text-secondary mb-0">Gerencie os contatos locais e importe os contatos selecionados do WhatsApp.</p>
         </div>
 
         <div class="d-flex flex-column flex-sm-row gap-2">
@@ -22,7 +22,7 @@
                 type="button"
                 data-contact-import-open
             >
-                Buscar do WhatsApp
+                Buscar no WhatsApp
             </button>
         </div>
     </div>
@@ -53,7 +53,7 @@
                         name="q"
                         type="search"
                         value="{{ $search }}"
-                        placeholder="Buscar por nome, telefone ou WhatsApp ID"
+                        placeholder="Buscar por nome, telefone ou ID do WhatsApp"
                     >
                 </div>
                 <div class="col-md-3 col-lg-2 d-grid">
@@ -63,15 +63,15 @@
 
             @if ($contacts->isEmpty())
                 <div class="text-center py-5">
-                    <h2 class="h5 mb-2">Nenhum contato local ainda</h2>
+                    <h2 class="h5 mb-2">Ainda não há contatos locais</h2>
                     <p class="text-secondary mb-4">Busque contatos no WhatsApp e escolha quais deseja importar.</p>
                     <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
                         <button class="btn btn-outline-success" type="button" data-contact-manual-open>
                             Adicionar manualmente
                         </button>
-                        <button class="btn btn-success" type="button" data-contact-import-open>
-                            Buscar do WhatsApp
-                        </button>
+                    <button class="btn btn-success" type="button" data-contact-import-open>
+                        Buscar no WhatsApp
+                    </button>
                     </div>
                 </div>
             @else
@@ -81,7 +81,7 @@
                             <tr>
                                 <th scope="col">Nome</th>
                                 <th scope="col">Telefone</th>
-                                <th scope="col">WhatsApp ID</th>
+                                <th scope="col">ID do WhatsApp</th>
                                 <th scope="col">Origem</th>
                                 <th scope="col">Sincronizado</th>
                                 <th scope="col">Bloqueado</th>
@@ -160,7 +160,7 @@
             <div class="d-flex align-items-center justify-content-between gap-3 border-bottom p-4">
                 <div>
                     <h2 class="h5 mb-1" data-contact-manual-title>Adicionar contato</h2>
-                    <p class="text-secondary mb-0">O numero sera validado e sincronizado com o WhatsApp.</p>
+                    <p class="text-secondary mb-0">O número será validado e sincronizado com o WhatsApp.</p>
                 </div>
                 <button class="btn-close" type="button" aria-label="Fechar" data-contact-manual-close></button>
             </div>
@@ -274,7 +274,7 @@
                                 <th scope="col" style="width: 48px;"></th>
                                 <th scope="col">Nome</th>
                                 <th scope="col">Telefone</th>
-                                <th scope="col">WhatsApp ID</th>
+                                <th scope="col">ID do WhatsApp</th>
                                 <th scope="col">Status</th>
                             </tr>
                         </thead>
@@ -433,7 +433,7 @@
                 const payload = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(payload.error || payload.message || 'Nao foi possivel buscar contatos.');
+                    throw new Error(payload.error || payload.message || 'Não foi possível buscar contatos.');
                 }
 
                 previewContacts = payload.contacts || [];
@@ -504,7 +504,7 @@
                 const status = !contact.importable
                     ? `<span class="badge text-bg-light text-dark border">${skipReasonLabel(contact.skip_reason)}</span>`
                     : contact.already_imported
-                    ? '<span class="badge text-bg-secondary">Ja importado</span>'
+                    ? '<span class="badge text-bg-secondary">Já importado</span>'
                     : '<span class="badge text-bg-success">Novo</span>';
 
                 return `
@@ -569,7 +569,7 @@
             }
 
             if (previewMeta.total_skipped > 0) {
-                return `${previewMeta.total_importable} importáveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome. ${previewMeta.total_skipped} registros tecnicos.`;
+                return `${previewMeta.total_importable} importáveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome. ${previewMeta.total_skipped} registros técnicos.`;
             }
 
             return `${previewMeta.total_importable} importáveis: ${previewMeta.total_importable_with_name} com nome, ${previewMeta.total_importable_without_name} sem nome.`;

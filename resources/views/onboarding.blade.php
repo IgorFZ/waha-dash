@@ -7,20 +7,20 @@
         <div class="col-md-8 col-lg-6">
             <div class="text-center mb-4">
                 <h1 class="h3 mb-2">Configurar WhatsApp</h1>
-                <p class="text-secondary mb-0">Conecte a sessao padrao para liberar o dashboard.</p>
+                <p class="text-secondary mb-0">Conecte a sessão padrão para liberar o painel.</p>
             </div>
 
             @if ($step === 'create')
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
-                        <h2 class="h5 mb-3">Criar sessao</h2>
-                        <p class="text-secondary">Escolha um nome amigavel para identificar esta sessao.</p>
+                        <h2 class="h5 mb-3">Criar sessão</h2>
+                        <p class="text-secondary">Escolha um nome amigável para identificar esta sessão.</p>
 
                         <form method="POST" action="{{ route('onboarding.session.store') }}">
                             @csrf
 
                             <div class="mb-3">
-                                <label class="form-label" for="name">Nome da sessao</label>
+                                <label class="form-label" for="name">Nome da sessão</label>
                                 <input
                                     class="form-control @error('name') is-invalid @enderror"
                                     id="name"
@@ -36,7 +36,7 @@
                                 @enderror
                             </div>
 
-                            <button class="btn btn-success w-100" type="submit">Criar sessao</button>
+                            <button class="btn btn-success w-100" type="submit">Criar sessão</button>
                         </form>
                     </div>
                 </div>
@@ -51,8 +51,8 @@
 
                         <h2 class="h5 mb-1">{{ $session->name }}</h2>
                         <p class="text-secondary mb-4">
-                            Status WAHA:
-                            <span data-onboarding-status>{{ $remote['status'] ?? 'nao sincronizada' }}</span>
+                            Status da WAHA:
+                            <span data-onboarding-status>{{ $remote['status'] ?? 'não sincronizada' }}</span>
                         </p>
 
                         <div
@@ -65,7 +65,7 @@
 
                         @if ($remoteError)
                             <div class="alert alert-danger text-start" role="alert">
-                                Nao foi possivel sincronizar com a WAHA.
+                                Não foi possível sincronizar com a WAHA.
                                 <div class="small mt-1">{{ $remoteError }}</div>
                             </div>
                         @endif
@@ -116,14 +116,14 @@
                     const payload = await response.json();
 
                     if (!response.ok) {
-                        throw new Error(payload.error || 'Nao foi possivel consultar a sessao.');
+                        throw new Error(payload.error || 'Não foi possível consultar a sessão.');
                     }
 
-                    statusText.textContent = payload.status || 'nao sincronizada';
+                    statusText.textContent = payload.status || 'não sincronizada';
 
                     if (payload.connected) {
                         pollingAlert.className = 'alert alert-success text-start';
-                        pollingAlert.textContent = 'WhatsApp conectado. Abrindo dashboard...';
+                        pollingAlert.textContent = 'WhatsApp conectado. Abrindo o painel...';
                         window.location.href = payload.redirect;
                         return;
                     }

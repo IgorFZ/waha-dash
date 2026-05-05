@@ -42,7 +42,7 @@ class MessageTemplateController extends Controller
 
         return redirect()
             ->route('message-templates.index')
-            ->with('status', 'Template criado.');
+            ->with('status', 'Modelo criado.');
     }
 
     /**
@@ -70,7 +70,7 @@ class MessageTemplateController extends Controller
 
         return redirect()
             ->route('message-templates.index')
-            ->with('status', 'Template atualizado.');
+            ->with('status', 'Modelo atualizado.');
     }
 
     /**
@@ -82,7 +82,7 @@ class MessageTemplateController extends Controller
             return redirect()
                 ->route('message-templates.index')
                 ->withErrors([
-                    'template' => 'Template usado em assinaturas não pode ser excluído.',
+                    'template' => 'Modelo usado em assinaturas não pode ser excluído.',
                 ]);
         }
 
@@ -90,6 +90,6 @@ class MessageTemplateController extends Controller
 
         return redirect()
             ->route('message-templates.index')
-            ->with('status', 'Template excluído.');
+            ->with('status', 'Modelo excluído.');
     }
 }

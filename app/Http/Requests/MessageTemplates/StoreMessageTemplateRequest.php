@@ -32,8 +32,8 @@ class StoreMessageTemplateRequest extends FormRequest
             'body.required' => 'O corpo da mensagem é obrigatório.',
             'body.string' => 'O corpo da mensagem deve ser uma string.',
             'body.max' => 'O corpo da mensagem não pode exceder 5000 caracteres.',
-            'media_url.url' => 'A URL do mídia deve ser um link válido.',
-            'media_url.max' => 'A URL do mídia não pode exceder 2048 caracteres.',
+            'media_url.url' => 'A URL da mídia deve ser um link válido.',
+            'media_url.max' => 'A URL da mídia não pode exceder 2048 caracteres.',
             'media_type.enum' => 'O tipo de mídia selecionado é inválido.',
         ];
     }

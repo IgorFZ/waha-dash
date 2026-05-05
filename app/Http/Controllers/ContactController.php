@@ -79,7 +79,7 @@ class ContactController extends Controller
             ));
         } catch (\Throwable $exception) {
             return response()->json([
-                'message' => 'Nao foi possivel buscar os contatos na WAHA.',
+                'message' => 'Não foi possível buscar os contatos na WAHA.',
                 'error' => $exception->getMessage(),
             ], 503);
         }
@@ -91,7 +91,7 @@ class ContactController extends Controller
         $summary = $contacts->importSelected($session, $request->chatIds());
 
         return response()->json([
-            'message' => 'Importacao concluida.',
+            'message' => 'Importação concluída.',
             'summary' => $summary,
         ]);
     }
@@ -141,7 +141,7 @@ class ContactController extends Controller
             return redirect()
                 ->route('contacts.index')
                 ->withErrors([
-                    'contact' => 'Contato com subscription ativa nao pode ser excluido.',
+                    'contact' => 'Contato com assinatura ativa não pode ser excluído.',
                 ]);
         }
 
@@ -149,6 +149,6 @@ class ContactController extends Controller
 
         return redirect()
             ->route('contacts.index')
-            ->with('status', 'Contato excluido.');
+            ->with('status', 'Contato excluído.');
     }
 }

@@ -8,4 +8,14 @@ enum MediaType: string
     case Document = 'document';
     case Audio = 'audio';
     case Video = 'video';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Image => 'Imagem',
+            self::Document => 'Documento',
+            self::Audio => 'Áudio',
+            self::Video => 'Vídeo',
+        };
+    }
 }
