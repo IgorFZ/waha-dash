@@ -1,5 +1,6 @@
 services:
   app:
+    image: waha-dash-app:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,6 +13,8 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY:-local-dev-waha-key}
     volumes:
       - .:/var/www/html
     depends_on:
@@ -20,11 +23,19 @@ services:
 
   scheduler:
     image: waha-dash-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     container_name: waha-dash-scheduler
     restart: unless-stopped
     command: ["php", "artisan", "schedule:work"]
     env_file:
       - .env
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY:-local-dev-waha-key}
     volumes:
       - .:/var/www/html
     depends_on:
@@ -51,7 +62,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      WAHA_API_KEY: ${WAHA_API_KEY}
+      WAHA_API_KEY: ${WAHA_API_KEY:-local-dev-waha-key}
       WAHA_DASHBOARD_ENABLED: ${WAHA_DASHBOARD_ENABLED:-true}
       WAHA_DASHBOARD_USERNAME: ${WAHA_DASHBOARD_USERNAME:-admin}
       WAHA_DASHBOARD_PASSWORD: ${WAHA_DASHBOARD_PASSWORD}
