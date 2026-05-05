@@ -5,6 +5,7 @@ namespace App\Services\Contacts;
 use App\Models\Contact;
 use App\Models\WhatsappSession;
 use App\Services\Waha\WahaClient;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 
 class ContactImportService
@@ -150,7 +151,7 @@ class ContactImportService
 
         for ($page = 0; $page < $this->maxPages(); $page++) {
             $offset = $page * $this->pageSize();
-            $pageContacts = $this->waha->contacts($sessionName, $this->pageSize(), $offset);
+            $pageContacts = $this->fetchContactsPage($sessionName, $this->pageSize(), $offset);
 
             $contacts = array_merge($contacts, $pageContacts);
 
@@ -170,7 +171,7 @@ class ContactImportService
         try {
             for ($page = 0; $page < $this->maxPages(); $page++) {
                 $offset = $page * $this->pageSize();
-                $pageLids = $this->waha->lids($sessionName, $this->pageSize(), $offset);
+                $pageLids = $this->fetchLidsPage($sessionName, $this->pageSize(), $offset);
 
                 foreach ($pageLids as $mapping) {
                     if (! isset($mapping['lid'])) {
@@ -189,6 +190,40 @@ class ContactImportService
         }
 
         return $lids;
+    }
+
+    private function fetchContactsPage(string $sessionName, int $limit, int $offset): array
+    {
+        return $this->retryWahaRequest(
+            fn() => $this->waha->contacts($sessionName, $limit, $offset),
+        );
+    }
+
+    private function fetchLidsPage(string $sessionName, int $limit, int $offset): array
+    {
+        return $this->retryWahaRequest(
+            fn() => $this->waha->lids($sessionName, $limit, $offset),
+        );
+    }
+
+    private function retryWahaRequest(callable $callback): array
+    {
+        try {
+            return $callback();
+        } catch (RequestException $exception) {
+            if (! $this->isTransientWahaError($exception)) {
+                throw $exception;
+            }
+
+            usleep(250000);
+
+            return $callback();
+        }
+    }
+
+    private function isTransientWahaError(RequestException $exception): bool
+    {
+        return in_array($exception->response?->status(), [500, 502, 503, 504], true);
     }
 
     private function normalize(array $payload, array $lidMap = []): ?array
@@ -351,7 +386,7 @@ class ContactImportService
 
     private function pageSize(): int
     {
-        return max(100, (int) config('waha.contacts_page_size', 1000));
+        return max(100, (int) config('waha.contacts_page_size', 100));
     }
 
     private function maxPages(): int

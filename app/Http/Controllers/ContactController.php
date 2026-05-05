@@ -88,7 +88,15 @@ class ContactController extends Controller
     public function import(ImportContactsRequest $request, ContactImportService $contacts): JsonResponse
     {
         $session = WhatsappSession::query()->firstOrFail();
-        $summary = $contacts->importSelected($session, $request->chatIds());
+
+        try {
+            $summary = $contacts->importSelected($session, $request->chatIds());
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'message' => 'Não foi possível importar os contatos da WAHA.',
+                'error' => $exception->getMessage(),
+            ], 503);
+        }
 
         return response()->json([
             'message' => 'Importação concluída.',
