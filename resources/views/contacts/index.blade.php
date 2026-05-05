@@ -2,13 +2,6 @@
 
 @section('title', 'Contatos - Waha Dash')
 
-@section('topbar')
-    <div class="d-inline-flex align-items-center gap-2 border border-success rounded px-3 py-2 bg-white">
-        <span class="fw-semibold">{{ $session->name }}</span>
-        <span class="badge text-bg-success">{{ $session->status->label() }}</span>
-    </div>
-@endsection
-
 @section('content')
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
         <div>

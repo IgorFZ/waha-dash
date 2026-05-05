@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\MediaType;
+use App\Http\Requests\MessageTemplates\StoreMessageTemplateRequest;
+use App\Http\Requests\MessageTemplates\UpdateMessageTemplateRequest;
 use App\Models\MessageTemplate;
-use Illuminate\Http\Request;
+use App\Services\Templates\MessageTemplateRenderer;
 
 class MessageTemplateController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(MessageTemplateRenderer $renderer)
     {
-        //
+        $templates = MessageTemplate::query()
+            ->withCount('subscriptions')
+            ->orderBy('title')
+            ->paginate(15);
+
+        return view('message_templates.index', [
+            'templates' => $templates,
+            'mediaTypes' => MediaType::cases(),
+            'availablePlaceholders' => $renderer->availablePlaceholders(),
+            'exampleContext' => $renderer->exampleContext(),
+        ]);
     }
 
     /**
@@ -26,9 +36,13 @@ class MessageTemplateController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMessageTemplateRequest $request)
     {
-        //
+        MessageTemplate::query()->create($request->validated());
+
+        return redirect()
+            ->route('message-templates.index')
+            ->with('status', 'Template criado.');
     }
 
     /**
@@ -50,9 +64,13 @@ class MessageTemplateController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MessageTemplate $messageTemplate)
+    public function update(UpdateMessageTemplateRequest $request, MessageTemplate $messageTemplate)
     {
-        //
+        $messageTemplate->update($request->validated());
+
+        return redirect()
+            ->route('message-templates.index')
+            ->with('status', 'Template atualizado.');
     }
 
     /**
@@ -60,6 +78,18 @@ class MessageTemplateController extends Controller
      */
     public function destroy(MessageTemplate $messageTemplate)
     {
-        //
+        if ($messageTemplate->subscriptions()->exists()) {
+            return redirect()
+                ->route('message-templates.index')
+                ->withErrors([
+                    'template' => 'Template usado em assinaturas não pode ser excluído.',
+                ]);
+        }
+
+        $messageTemplate->delete();
+
+        return redirect()
+            ->route('message-templates.index')
+            ->with('status', 'Template excluído.');
     }
 }

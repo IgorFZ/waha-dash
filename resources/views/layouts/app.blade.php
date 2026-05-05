@@ -25,10 +25,23 @@
                     >
                         Contatos
                     </a>
+                    <a
+                        class="nav-link {{ request()->routeIs('message-templates.*') ? 'active fw-semibold' : '' }}"
+                        href="{{ route('message-templates.index') }}"
+                    >
+                        Templates
+                    </a>
                 </div>
             </div>
 
-            @yield('topbar')
+            @hasSection('topbar')
+                @yield('topbar')
+            @elseif ($topbarSession)
+                <div class="d-inline-flex align-items-center gap-2 border border-success rounded px-3 py-2 bg-white">
+                    <span class="fw-semibold">{{ $topbarSession->name }}</span>
+                    <span class="badge text-bg-success">{{ $topbarSession->status->label() }}</span>
+                </div>
+            @endif
         </div>
     </nav>
 
