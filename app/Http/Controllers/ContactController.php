@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 
-class ContactsController extends Controller
+class ContactController extends Controller
 {
     /**
      * Display a listing of the resource.
